@@ -28,13 +28,20 @@ def create_constraints(passengers, plane):
         group_size = np.array(y).shape[0]
         prob += lpSum([y[i][j] for i in range(first_element, last_element+1) for j in range(first_element, last_element+1)]) / 2
 
-
     ### Add constraints ###
 
-    ## No children next to the emergency exits
+    ## Children passengers
     emergency_seats = plane.emergency_seats
     for c in passengers.children:
+
+        # No children next to the emergency exits
         prob += lpSum([x[s][p] for s in emergency_seats for p in [c]]) == 0
+
+        # Children should have an adult next to them
+        adults = passengers.men + passengers.women
+        for s in plane.seats:
+            neighs = plane.child_neigh[s]
+            prob += lpSum([x[s][p] for s in neighs for p in adults]) >= x[s][c]
 
     ## WCHR passengers
     alley_seats = plane.alley_seats
