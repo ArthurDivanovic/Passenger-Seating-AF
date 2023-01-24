@@ -29,6 +29,12 @@ def create_constraints(passengers, plane):
         prob += lpSum([y[i][j] for i in range(first_element, last_element+1) for j in range(first_element, last_element+1)]) / 2
 
     # Add constraints
-
+    for p in passengers.passengers:
+        prob +=  sum(x[:,p]) == 1
+    
+    for s in plane.seats:
+        prob += sum(x[s,:]) <= 1
+    
+    
 
     return None
