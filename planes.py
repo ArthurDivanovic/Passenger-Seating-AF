@@ -63,4 +63,6 @@ class Plane:
                 else :
                     self.seat_position.append([alley_size + s%6, s//6+1])
 
+        self.a = self.seat_position
+
     
