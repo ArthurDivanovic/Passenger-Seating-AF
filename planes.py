@@ -40,7 +40,16 @@ class Plane:
             if s%6 == 2 or s%6 == 5 and s//6 > 2:
                 self.wchb_neigh.append([s-1, s+1, s-6-1, s-6+1, s-12-1, s-12+1, s-18-1, s-18+1, s-24-1, s-24+1])
 
-        self.business_seats = [k for k in range(1, 6*business_line_bound+1)]
+        self.business_seats = [k for k in range(1, 6*business_line_bound+1)]    
+
+        self.business_neigh = []
+        for s in self.business_seats:
+            if s%6 == 3 or s%6 == 0:
+                self.business_neigh.append([s-1])
+            if s%6 == 4 or s%6 == 1:
+                self.business_neigh.append([s+1])
+            else :
+                self.business_neigh.append([s-1, s+1])  
         
         alley_size = 3
         self.seat_position = []
