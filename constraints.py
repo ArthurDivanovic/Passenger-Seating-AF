@@ -28,7 +28,42 @@ def create_constraints(passengers, plane):
         group_size = np.array(y).shape[0]
         prob += lpSum([y[i][j] for i in range(first_element, last_element+1) for j in range(first_element, last_element+1)]) / 2
 
-    # Add constraints
+    ### Add constraints ###
+
+    ## No children next to the emergency exits
+    emergency_seats = plane.emergency_seats
+    for c in passengers.children:
+        prob += lpSum([x[s][p] for s in emergency_seats for p in [c]]) == 0
+
+    ## WCHR passengers
+    alley_seats = plane.alley_seats
+    for wchr in passengers.wchr:
+
+        # WCHR are placed on the alleys
+        prob += lpSum([x[s][p] for s in alley_seats for p in [wchr]]) == 1
+
+        # WCHR freeze seats around them
+        for s in plane.seats:
+            neighs = plane.wchr_neigh[s]
+            prob += lpSum([x[s][p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][wchr])
+
+    ## WCHB passengers
+    for wchb in passengers.wchb:
+        for s in plane.seats:
+            neighs = plane.wchb_neigh[s]
+            prob += lpSum([x[s][p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][wchb])
+
+    ## Business passengers
+    for b in passengers.business:
+
+        # Business passengers are placed on the business seats
+        business_seats = plane.business_seats
+        prob += lpSum([x[s][p] for s in business_seats for p in [b]]) == 1
+
+        # Business passengers have no direct neighbors
+        for s in business_seats:
+            neighs = plane.business_neigh[s]
+            prob += lpSum([x[s][p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][b])
 
 
     return None
