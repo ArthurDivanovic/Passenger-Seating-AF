@@ -11,9 +11,9 @@ def create_constraints(passengers, plane):
     prob = LpProblem("Passenger Seating Problem", LpMinimize)
 
     # Variables
-    p = len(passengers.passengers)
-    s = plane.nb_seat
-    x = LpVariable.dict("x[i,j]", (range(1, s+1), range(1, p+1)), 0, 1)
+    nb_p = len(passengers.passengers)
+    nb_s = plane.nb_seat
+    x = LpVariable.dict("x[i,j]", (range(1, nb_s+1), range(1, nb_p+1)), 0, 1)
     Y = dict()
     for group in passengers.bounds.keys():
         first_element = passengers.bounds[group][0]
@@ -72,6 +72,20 @@ def create_constraints(passengers, plane):
         for s in business_seats:
             neighs = plane.business_neigh[s]
             prob += lpSum([x[s][p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][b])
+
+
+    #Barycenter within the center zone
+    xmin = plane.seat_position[plane.center_zone[0]][0]
+    xmax = plane.seat_position[plane.center_zone[1]][0]
+    ymin = plane.seat_position[plane.center_zone[0]][1]
+    ymax = plane.seat_position[plane.center_zone[2]][1]
+    x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type[p]] for s in neighs for p in passengers.passengers])
+    y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type[p]] for s in neighs for p in passengers.passengers])
+    prob +=  x_barycenter <= xmax
+    prob +=  x_barycenter >= xmin
+    prob +=  y_barycenter <= ymax
+    prob +=  y_barycenter >= ymin
+   
             
     ## Only one seat per passenger 
     for p in passengers.passengers:
