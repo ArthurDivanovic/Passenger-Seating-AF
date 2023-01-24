@@ -51,16 +51,22 @@ class Plane:
             else :
                 self.business_neigh.append([s-1, s+1])  
         
-        alley_size = 3
+        alley_size = 2
+        line_size = 3
+        column_size = 1
         self.seat_position = []
         for s in self.seats:
             if s%6 <= 3 and s%6 >= 1:
-                self.seat_position.append([s%6, s//6+1])
+                self.seat_position.append([s%6*column_size, (s//6+1)*line_size])
             else:
                 if s%6 == 0:
-                    print(s)
-                    self.seat_position.append([alley_size + 6, s//6])
+                    self.seat_position.append([alley_size + 6*column_size, s//6*line_size])
                 else :
-                    self.seat_position.append([alley_size + s%6, s//6+1])
+                    self.seat_position.append([alley_size + s%6*column_size, (s//6+1)*line_size])
+        
+        # 4 seats defining the square (front seat first)
+        self.center_zone = [nb_line//2*6 + 2 - 12, nb_line//2*6 + 3 - 12, nb_line//2*6 + 2 + 12, nb_line//2*6 + 3 + 12]
+        
+
 
     
