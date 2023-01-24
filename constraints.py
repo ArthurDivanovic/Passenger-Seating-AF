@@ -28,14 +28,14 @@ def create_constraints(passengers, plane):
         group_size = np.array(y).shape[0]
         prob += lpSum([y[i][j] for i in range(first_element, last_element+1) for j in range(first_element, last_element+1)]) / 2
 
-    ### Add constraints ###
+    ### CONSTRAINTS ###
 
     ## Children passengers
     emergency_seats = plane.emergency_seats
     for c in passengers.children:
 
         # No children next to the emergency exits
-        prob += lpSum([x[s][p] for s in emergency_seats for p in [c]]) == 0
+        prob += lpSum([x[s][c] for s in emergency_seats]) == 0
 
         # Children should have an adult next to them
         adults = passengers.men + passengers.women
@@ -48,12 +48,12 @@ def create_constraints(passengers, plane):
     for wchr in passengers.wchr:
 
         # WCHR are placed on the alleys
-        prob += lpSum([x[s][p] for s in alley_seats for p in [wchr]]) == 1
+        prob += lpSum([x[s][wchr] for s in alley_seats]) == 1
 
         # WCHR freeze seats around them
         for s in plane.seats:
             neighs = plane.wchr_neigh[s]
-            prob += lpSum([x[s][p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][wchr])
+            prob += lpSum([x[s][w] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][wchr])
 
     ## WCHB passengers
     for wchb in passengers.wchb:
@@ -66,17 +66,36 @@ def create_constraints(passengers, plane):
 
         # Business passengers are placed on the business seats
         business_seats = plane.business_seats
-        prob += lpSum([x[s][p] for s in business_seats for p in [b]]) == 1
+        prob += lpSum([x[s][b] for s in business_seats]) == 1
 
         # Business passengers have no direct neighbors
         for s in business_seats:
             neighs = plane.business_neigh[s]
             prob += lpSum([x[s][p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][b])
             
+    ## Only one seat per passenger 
     for p in passengers.passengers:
         prob +=  sum(x[:,p]) == 1
     
+    ## Only one passenger per seat 
     for s in plane.seats:
         prob += sum(x[s,:]) <= 1
+
+    ## Constraints on y
+    a = plane.a
+    seats = plane.seats
+
+    for group in Y.keys():
+        group_passengers = Y[group]
+
+        for p in group_passengers:
+            for p_prime in group_passengers:
+
+                prob += y[p][p_prime] >= lpSum([(x[s][p]- x[s][p_prime])*(a[s][0] + a[s][1]) for s in seats]) 
+                prob += y[p][p_prime] >= lpSum([(x[s][p]- x[s][p_prime])*(a[s][0] - a[s][1]) for s in seats])
+                prob += y[p][p_prime] >= lpSum([(x[s][p]- x[s][p_prime])*(-a[s][0] + a[s][1]) for s in seats])
+                prob += y[p][p_prime] >= lpSum([(x[s][p]- x[s][p_prime])*(-a[s][0] - a[s][1]) for s in seats])
+
+    ### ###
 
     return None
