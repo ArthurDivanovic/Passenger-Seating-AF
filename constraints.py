@@ -28,6 +28,7 @@ def create_constraints(passengers, plane):
         group_size = np.array(y).shape[0]
         prob += lpSum([y[i][j] for i in range(first_element, last_element+1) for j in range(first_element, last_element+1)]) / 2
 
+
     ### Add constraints ###
 
     ## No children next to the emergency exits
@@ -64,6 +65,11 @@ def create_constraints(passengers, plane):
         for s in business_seats:
             neighs = plane.business_neigh[s]
             prob += lpSum([x[s][p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s][b])
-
+            
+    for p in passengers.passengers:
+        prob +=  sum(x[:,p]) == 1
+    
+    for s in plane.seats:
+        prob += sum(x[s,:]) <= 1
 
     return None
