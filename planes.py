@@ -69,4 +69,6 @@ class Plane:
         
 
 
+        self.a = self.seat_position
+
     
