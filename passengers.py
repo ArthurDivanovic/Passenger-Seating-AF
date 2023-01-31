@@ -12,7 +12,7 @@ class Passengers:
         self.children = E
         self.wchr = WCHR
         self.wchb = WCHB
-        self.businness = B
+        self.business = B
         self.bounds = bounds
         self.mass = dict(woman=woman_mass, man=man_mass, child=child_mass, wchr=wchr_mass, wchb=wchb_mass)
 
@@ -91,6 +91,18 @@ class Passengers:
         bounds = Passengers.compute_groups_bounds(data)
 
         return Passengers(P, W, M, E, WCHR, WCHB, B, bounds)
+    
+    def get_passenger_type(self, passenger_number):
+        if passenger_number in self.men:
+            return 'man'
+        if passenger_number in self.women:
+            return 'woman'
+        if passenger_number in self.children:
+            return 'child'
+        if passenger_number in self.wchr:
+            return 'wchr'
+        if passenger_number in self.wchb:
+            return 'wchb'
 
     def get_passenger_type(self, passenger_number):
         if passenger_number in self.men:
