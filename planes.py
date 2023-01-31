@@ -60,6 +60,7 @@ class Plane:
             else :
                 self.business_neigh[s] = self.add_seats([s-1, s+1])
         
+        #Seat position for barycenter
         alley_size = 2
         line_size = 3
         column_size = 1
@@ -77,7 +78,35 @@ class Plane:
         self.center_zone = self.add_seats([nb_line//2*6 + 2 - 12, nb_line//2*6 + 3 - 12, nb_line//2*6 + 2 + 12, nb_line//2*6 + 3 + 12])
         
 
+        #Position for group of less (or equal) than 3 people
+        alley_size_l3 = 2
+        line_size_l3 = 20
+        column_size_l3 = 1
 
-        self.a = self.seat_position
+        self.a_l3 = dict()
+        for s in self.seats:
+            if s%6 <= 3 and s%6 >= 1:
+                self.a_l3[s] = [s%6*column_size_l3, (s//6+1)*line_size_l3]
+            else:
+                if s%6 == 0:
+                    self.a_l3[s] = [alley_size_l3 + 6*column_size_l3, s//6*line_size_l3]
+                else :
+                    self.a_l3[s] = [alley_size_l3 + s%6*column_size_l3, (s//6+1)*line_size_l3]
+
+
+        #Position for group of more than 3 people
+        alley_size_u3 = 2
+        line_size_u3 = 20
+        column_size_u3 = 1
+
+        self.a_u3 = dict()
+        for s in self.seats:
+            if s%6 <= 3 and s%6 >= 1:
+                self.a_u3[s] = [s%6*column_size_u3, (s//6+1)*line_size_u3]
+            else:
+                if s%6 == 0:
+                    self.a_u3[s] = [alley_size_u3 + 6*column_size_u3, s//6*line_size_u3]
+                else :
+                    self.a_l3[s] = [alley_size_u3 + s%6*column_size_u3, (s//6+1)*line_size_u3]
 
     
