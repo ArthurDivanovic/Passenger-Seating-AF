@@ -5,7 +5,7 @@ class Passengers:
 
     "Explain Passengers class"
 
-    def __init__(self, P, W, M, E, WCHR, WCHB, B, bounds):
+    def __init__(self, P, W, M, E, WCHR, WCHB, B, bounds, woman_mass=60, man_mass=75, child_mass=40, wchr_mass=90, wchb_mass=90):
         self.passengers = P
         self.women = W
         self.men = M
@@ -14,7 +14,7 @@ class Passengers:
         self.wchb = WCHB
         self.businness = B
         self.bounds = bounds
-
+        self.mass = dict(woman=woman_mass, man=man_mass, child=child_mass, wchr=wchr_mass, wchb=wchb_mass)
 
     def compute_groups_bounds(data):
         dict = {}
@@ -92,3 +92,14 @@ class Passengers:
 
         return Passengers(P, W, M, E, WCHR, WCHB, B, bounds)
 
+    def get_passenger_type(self, passenger_number):
+        if passenger_number in self.men:
+            return 'man'
+        if passenger_number in self.women:
+            return 'woman'
+        if passenger_number in self.children:
+            return 'child'
+        if passenger_number in self.wchr:
+            return 'wchr'
+        if passenger_number in self.wchb:
+            return 'wchb'
