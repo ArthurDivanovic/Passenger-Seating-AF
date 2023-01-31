@@ -4,6 +4,7 @@ import numpy as np
 class Passengers:
 
     "Explain Passengers class"
+
     def __init__(self, P, W, M, E, WCHR, WCHB, B, bounds, woman_mass=60, man_mass=75, child_mass=40, wchr_mass=90, wchb_mass=90):
         self.passengers = P
         self.women = W
@@ -103,3 +104,14 @@ class Passengers:
         if passenger_number in self.wchb:
             return 'wchb'
 
+    def get_passenger_type(self, passenger_number):
+        if passenger_number in self.men:
+            return 'man'
+        if passenger_number in self.women:
+            return 'woman'
+        if passenger_number in self.children:
+            return 'child'
+        if passenger_number in self.wchr:
+            return 'wchr'
+        if passenger_number in self.wchb:
+            return 'wchb'
