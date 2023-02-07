@@ -51,7 +51,7 @@ def create_constraints(passengers, plane):
 
         # WCHR freeze seats around them
         prob += lpSum([x[s,wchr] for s in range(1,7)]) == 0
-        print(plane.wchr_neigh)
+        
         for s in plane.wchr_seats:
             neighs = plane.wchr_neigh[s]
             print('neighs: ', neighs)
@@ -114,7 +114,7 @@ def create_constraints(passengers, plane):
                 prob += y[p,p_prime] >= lpSum([(x[s,p]- x[s,p_prime])*(-a[s][0] - a[s][1]) for s in seats])
 
     ### SOLVE PROBLEM ###
-    status = prob.solve()
+    status = prob.solve(PULP_CBC_CMD(msg=1))
 
     ### DISPLAY SOLUTION ###
     print(f'Optimal solution: {value(prob.objective)}')
