@@ -208,7 +208,7 @@ def gurobi_solving(passengers, plane):
     return passenger_on_seats
 
 def plot_results(passengers, plane, passenger_on_seats):
-    fig = plt.figure(figsize=(4,4))
+    fig = plt.figure(figsize=(15,15))
     X = []
     Y = []
     for x,y in plane.seat_position.values():

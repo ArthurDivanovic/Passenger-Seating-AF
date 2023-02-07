@@ -48,7 +48,6 @@ class Passengers:
     
     def get_group(self, passenger_id):
         for group_id, bounds in self.bounds.items():
-            print(group_id, bounds)
             if passenger_id >= bounds[0] and passenger_id <= bounds[1]:
                 return group_id
 
