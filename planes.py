@@ -107,6 +107,6 @@ class Plane:
                 if s%6 == 0:
                     self.a_u3[s] = [alley_size_u3 + 6*column_size_u3, s//6*line_size_u3]
                 else :
-                    self.a_l3[s] = [alley_size_u3 + s%6*column_size_u3, (s//6+1)*line_size_u3]
+                    self.a_u3[s] = [alley_size_u3 + s%6*column_size_u3, (s//6+1)*line_size_u3]
 
     
