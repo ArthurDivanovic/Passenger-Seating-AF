@@ -45,7 +45,8 @@ class Plane:
 
         self.wchb_seats = []
         self.wchb_neigh = dict()
-        for s in self.seats[:18] :
+
+        for s in self.seats[:18]:
             if s%6 == 2 or s%6 == 5 and s//6 > 2:
                 self.wchb_seats.append(s)
                 self.wchb_neigh[s] = self.add_seats([s-1, s+1, s-6-1, s-6+1, s-12-1, s-12+1, s-18-1, s-18+1])
