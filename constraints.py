@@ -5,7 +5,7 @@ from planes import *
 from passengers import *
 
 
-def create_constraints(passengers, plane):
+def default_solving(passengers, plane):
 
     # Problem
     prob = LpProblem("Passenger Seating Problem", LpMinimize)
@@ -142,7 +142,7 @@ def create_constraints(passengers, plane):
             for p_prime in range(group_passengers[0],group_passengers[1]+1):
                 print(f'y[{p},{p_prime}] = {y[p,p_prime].varValue}')
 
-def gurobi_solving(passengers, plane):
+def gurobi_solving(passengers, plane, time_limit=300):
 
     # Model
     model = gurobipy.Model("Passenger Seating Problem")
@@ -186,9 +186,43 @@ def gurobi_solving(passengers, plane):
                 model.addConstr(y[p,p_prime] >= sum([(x[s,p]- x[s,p_prime])*(-a[s][0] + a[s][1]) for s in seats]))
                 model.addConstr(y[p,p_prime] >= sum([(x[s,p]- x[s,p_prime])*(-a[s][0] - a[s][1]) for s in seats]))
 
+    ## Children passengers
+    emergency_seats = plane.emergency_seats
+    for c in passengers.children:
+
+        # No children next to the emergency exits
+        model.addConstr(sum([x[s,c] for s in emergency_seats]) == 0)
+
+        # Children should have an adult next to them
+        adults = passengers.men + passengers.women
+        for s in plane.seats:
+            neighs = plane.child_neigh[s]
+            model.addConstr(sum([x[s,p] for s in neighs for p in adults]) >= x[s,c])
+
+    ## WCHR passengers
+    alley_seats = plane.alley_seats
+    for wchr in passengers.wchr:
+
+        # WCHR are placed on the alleys
+        model.addConstr(sum([x[s,wchr] for s in alley_seats]) == 1)
+
+        # WCHR freeze seats around them
+        model.addConstr(sum([x[s,wchr] for s in range(1,7)]) == 0)
+        for s in plane.wchr_seats:
+            neighs = plane.wchr_neigh[s]
+            model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,wchr]))
+
+    ## WCHB passengers
+    for wchb in passengers.wchb:
+        
+        model.addConstr(sum([x[s][wchb] for s in range(1,19)]) == 0)
+        for s in plane.wchb_seats:
+            neighs = plane.wchb_neigh[s]
+            prob += lpSum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,wchb])
+
     ### Objective function ###
     model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2, gurobipy.GRB.MINIMIZE)
-    model.params.TimeLimit = 300
+    model.params.TimeLimit = time_limit
     model.optimize()
 
     # Print the solution
