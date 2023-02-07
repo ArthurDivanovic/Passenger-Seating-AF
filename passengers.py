@@ -45,7 +45,12 @@ class Passengers:
             dict[data["Numéro du groupe"][i]] = [first_group_passenger, last_group_passenger]
             
         return dict
-
+    
+    def get_group(self, passenger_id):
+        for group_id, bounds in self.bounds.items():
+            print(group_id, bounds)
+            if passenger_id >= bounds[0] and passenger_id <= bounds[1]:
+                return group_id
 
     def compute_passengers_sets(path):
         data = pd.read_csv(path, sep=';')
