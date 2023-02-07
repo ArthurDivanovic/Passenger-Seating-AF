@@ -75,7 +75,12 @@ class Plane:
                     self.seat_position[s] = [alley_size + s%6*column_size, (s//6+1)*line_size]
         
         # 4 seats defining the square (front seat first)
-        self.center_zone = self.add_seats([nb_line//2*6 + 2 - 12, nb_line//2*6 + 3 - 12, nb_line//2*6 + 2 + 12, nb_line//2*6 + 3 + 12])
+        if nb_line%2 == 1:
+            mid_line = nb_line//2+1
+            self.center_zone = self.add_seats([mid_line*6 - 3 - 12, mid_line*6 - 2 - 12, mid_line*6 - 3 + 12, mid_line*6 - 2 + 12])
+        else :
+            mid_line = nb_line//2
+            self.center_zone = self.add_seats([mid_line*6 - 3 - 6, mid_line*6 - 2 - 6, mid_line*6 - 3 + 12, mid_line*6 - 2 + 12])
         
 
         #Position for group of less (or equal) than 3 people
