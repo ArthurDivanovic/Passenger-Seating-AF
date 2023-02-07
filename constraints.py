@@ -89,8 +89,8 @@ def default_solving(passengers, plane):
     #xmax = plane.seat_position[plane.center_zone[1]][0]
     #ymin = plane.seat_position[plane.center_zone[0]][1]
     #ymax = plane.seat_position[plane.center_zone[2]][1]
-    #x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type(p)] for s in neighs for p in passengers.passengers])
-    #y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type(p)] for s in neighs for p in passengers.passengers])
+    #x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
+    #y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
     #prob +=  x_barycenter <= xmax
     #prob +=  x_barycenter >= xmin
     #prob +=  y_barycenter <= ymax
@@ -187,6 +187,20 @@ def gurobi_solving(passengers, plane, time_limit=300):
                 model.addConstr(y[p,p_prime] >= sum([(x[s,p]- x[s,p_prime])*(-a[s][0] + a[s][1]) for s in seats]))
                 model.addConstr(y[p,p_prime] >= sum([(x[s,p]- x[s,p_prime])*(-a[s][0] - a[s][1]) for s in seats]))
 
+    ## Barycenter within the center zone
+    xmin = plane.seat_position[plane.center_zone[0]][0]
+    xmax = plane.seat_position[plane.center_zone[1]][0]
+    ymin = plane.seat_position[plane.center_zone[0]][1]
+    ymax = plane.seat_position[plane.center_zone[2]][1]
+    print('0 :', plane.center_zone[0], xmin)
+    print('0 :', plane.center_zone[0], xmin)
+    #x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
+    #y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
+    #prob +=  x_barycenter <= xmax
+    #prob +=  x_barycenter >= xmin
+    #prob +=  y_barycenter <= ymax
+    #prob +=  y_barycenter >= ymin
+
     ## Children passengers
     emergency_seats = plane.emergency_seats
     for c in passengers.children:
@@ -216,10 +230,10 @@ def gurobi_solving(passengers, plane, time_limit=300):
     ## WCHB passengers
     for wchb in passengers.wchb:
         
-        model.addConstr(sum([x[s][wchb] for s in range(1,19)]) == 0)
+        model.addConstr(sum([x[s,wchb] for s in range(1,19)]) == 0)
         for s in plane.wchb_seats:
             neighs = plane.wchb_neigh[s]
-            prob += lpSum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,wchb])
+            model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,wchb]))
 
     ### Objective function ###
     model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2, gurobipy.GRB.MINIMIZE)
@@ -242,7 +256,7 @@ def gurobi_solving(passengers, plane, time_limit=300):
     return passenger_on_seats
 
 def plot_results(passengers, plane, passenger_on_seats):
-    fig = plt.figure(figsize=(4,4))
+    fig = plt.figure(figsize=(15,15))
     X = []
     Y = []
     for x,y in plane.seat_position.values():
@@ -262,7 +276,11 @@ def plot_results(passengers, plane, passenger_on_seats):
         x,y = plane.seat_position[s]
         c = "black"
         if p in passengers.wchr :
-            c="orange"
+            c = "orange"
         if p in passengers.wchb:
-            c="green"
+            c = "red"
+        if p in passengers.children :
+            c = "green"
+        if p in passengers.business :
+            c = "yellow"
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
