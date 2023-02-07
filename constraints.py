@@ -3,6 +3,7 @@ import numpy as np
 from pulp import *
 from planes import *
 from passengers import *
+import matplotlib.pyplot as plt
 
 
 def default_solving(passengers, plane):
@@ -125,7 +126,7 @@ def default_solving(passengers, plane):
         
 
     ### SOLVE PROBLEM ###
-    status = prob.solve()
+    status = prob.solve(PULP_CBC_CMD(msg=1))
 
     ### DISPLAY SOLUTION ###
     print(f'Optimal solution: {value(prob.objective)}')
@@ -239,3 +240,29 @@ def gurobi_solving(passengers, plane, time_limit=300):
 
 
     return passenger_on_seats
+
+def plot_results(passengers, plane, passenger_on_seats):
+    fig = plt.figure(figsize=(4,4))
+    X = []
+    Y = []
+    for x,y in plane.seat_position.values():
+        X.append(x)
+        Y.append(y)
+    plt.scatter(X,Y)
+
+    X1, Y1 = [], []
+    for s in plane.center_zone :
+        x,y = plane.seat_position[s]
+        X1.append(x)
+        Y1.append(y)
+    plt.scatter (X1,Y1, c='red')
+
+    for s,p in passenger_on_seats.items():
+        group_id = passengers.get_group(p)
+        x,y = plane.seat_position[s]
+        c = "black"
+        if p in passengers.wchr :
+            c="orange"
+        if p in passengers.wchb:
+            c="green"
+        plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
