@@ -192,10 +192,8 @@ def gurobi_solving(passengers, plane, time_limit=300):
     xmax = plane.seat_position[plane.center_zone[1]][0]
     ymin = plane.seat_position[plane.center_zone[0]][1]
     ymax = plane.seat_position[plane.center_zone[2]][1]
-    print('0 :', plane.center_zone[0], xmin)
-    print('0 :', plane.center_zone[0], xmin)
-    #x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
-    #y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
+    x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
+    y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
     #prob +=  x_barycenter <= xmax
     #prob +=  x_barycenter >= xmin
     #prob +=  y_barycenter <= ymax
@@ -237,6 +235,10 @@ def gurobi_solving(passengers, plane, time_limit=300):
             neighs = plane.wchb_neigh[s]
             model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,wchb]))
 
+        for s in plane.wchb_seats:
+            neighs = plane.wchb_neigh2_for_wchr[s]
+            model.addConstr(sum([x[s,p] for s in neighs for p in passengers.wchr]) <= len(neighs) * (1 - x[s,wchb]))
+
     ### Objective function ###
     model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2, gurobipy.GRB.MINIMIZE)
     model.params.TimeLimit = time_limit
@@ -255,7 +257,7 @@ def gurobi_solving(passengers, plane, time_limit=300):
                 passenger_on_seats[seat] = passenger
 
 
-    return passenger_on_seats
+    return passenger_on_seats, [x_barycenter,y_barycenter]
 
 def plot_results(passengers, plane, passenger_on_seats):
     fig = plt.figure(figsize=(15,15))
