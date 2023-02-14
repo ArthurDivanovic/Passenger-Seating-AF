@@ -215,22 +215,24 @@ def gurobi_solving(passengers, plane, time_limit=300):
             model.addConstr(sum([x[s,p] for s in neighs for p in adults]) >= x[s,c])
 
     ## WCHR passengers
-    alley_seats = plane.alley_seats
+    wchr_seats = plane.wchr_seats
     for wchr in passengers.wchr:
 
         # WCHR are placed on the alleys
-        model.addConstr(sum([x[s,wchr] for s in alley_seats]) == 1)
+        model.addConstr(sum([x[s,wchr] for s in wchr_seats]) == 1)
 
         # WCHR freeze seats around them
-        model.addConstr(sum([x[s,wchr] for s in range(1,7)]) == 0)
-        for s in plane.wchr_seats:
+        for s in wchr_seats:
             neighs = plane.wchr_neigh[s]
             model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,wchr]))
 
     ## WCHB passengers
+    wchb_seats = plane.wchb_seats
     for wchb in passengers.wchb:
+
+        # WCHB are placed on the center of columns
+        model.addConstr(sum([x[s,wchb] for s in wchb_seats]) == 1)
         
-        model.addConstr(sum([x[s,wchb] for s in range(1,19)]) == 0)
         for s in plane.wchb_seats:
             neighs = plane.wchb_neigh[s]
             model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,wchb]))
@@ -241,9 +243,9 @@ def gurobi_solving(passengers, plane, time_limit=300):
     model.optimize()
 
     # Print the solution
-    print("x =", {k: v.x for k, v in x.items()})
-    print("y =", {k: v.x for k, v in y.items()})
-    print("Objective value =", model.objVal)
+    #print("x =", {k: v.x for k, v in x.items()})
+    #print("y =", {k: v.x for k, v in y.items()})
+    #print("Objective value =", model.objVal)
 
     passenger_on_seats = dict()
     print(type(x))
@@ -281,6 +283,6 @@ def plot_results(passengers, plane, passenger_on_seats):
             c = "red"
         if p in passengers.children :
             c = "green"
-        if p in passengers.business :
-            c = "yellow"
+        #if p in passengers.business :
+        #    c = "yellow"
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
