@@ -65,10 +65,8 @@ def gurobi_solving(passengers, plane, time_limit=300):
 
     ## Business Passengers
     business_passengers = len(passengers.business)
-    print('bus pass :', passengers.business)
     business_rows = (business_passengers // 4) if business_passengers%4==0 else (business_passengers // 4 + 1)
     business_seats = [i for i in range(1, business_rows * 6 + 1)]
-    print('bus seats :', business_seats)
     for b in passengers.business:
         # Business passengers must be attributed to a business seat 
         model.addConstr(sum([x[s,b] for s in business_seats]) == 1)
@@ -76,8 +74,6 @@ def gurobi_solving(passengers, plane, time_limit=300):
         # Business passengers don't have neighbors
         for s in business_seats:
             neighs = plane.business_neigh[s]
-            print('seat :', s, ' - neigh :', neighs)
-            
             model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,b]))
 
     # No economy passengers in the business seats
@@ -132,10 +128,9 @@ def gurobi_solving(passengers, plane, time_limit=300):
     # Print the solution
     #print("x =", {k: v.x for k, v in x.items()})
     #print("y =", {k: v.x for k, v in y.items()})
-    #print("Objective value =", model.objVal)
+    print("Objective value =", model.objVal)
 
     passenger_on_seats = dict()
-    print(type(x))
     for seat in plane.seats:
         for passenger in passengers.passengers:
             if x[(seat,passenger)].X > 1/2:
@@ -153,7 +148,7 @@ def plot_results(passengers, plane, passenger_on_seats, barycenter):
         Y.append(y)
     plt.scatter(X,Y)
 
-    plt.scatter (barycenter[0], barycenter[1], c='green')
+    plt.scatter (barycenter[0], barycenter[1], c='green',)
 
     X1, Y1 = [], []
     for s in plane.center_zone :
@@ -161,6 +156,13 @@ def plot_results(passengers, plane, passenger_on_seats, barycenter):
         X1.append(x)
         Y1.append(y)
     plt.scatter (X1,Y1, c='red')
+
+    X2, Y2 = [], []
+    for s in plane.emergency_seats:
+        x,y = plane.seat_position[s]
+        X2.append(x)
+        Y2.append(y)
+    plt.scatter (X2,Y2, c='black')
 
     for s,p in passenger_on_seats.items():
         group_id = passengers.get_group(p)
@@ -173,5 +175,5 @@ def plot_results(passengers, plane, passenger_on_seats, barycenter):
         if p in passengers.children :
             c = "green"
         if p in passengers.business :
-           c = "yellow"
+           c = "blue"
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
