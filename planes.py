@@ -51,16 +51,25 @@ class Plane:
                 self.wchb_seats.append(s)
                 self.wchb_neigh[s] = self.add_seats([s-1, s+1, s-6-1, s-6, s-6+1, s-12-1,s-12, s-12+1, s-18-1, s-18, s-18+1])
 
-        self.business_seats = [k for k in range(1, 6*business_line_bound+1)]    
+        self.wchb_neigh2_for_wchr = dict()
+        for s in self.wchb_seats:
+            if s%6 == 2:
+                self.wchb_neigh2_for_wchr[s] = self.add_seats([s+6, s+6+1, s+6-1, s+2, s+6+2, s-6+2, s-12+2, s-18+2])
+            if s%6 == 5:
+                self.wchb_neigh2_for_wchr[s] = self.add_seats([s+6, s+6+1, s+6-1, s-2, s+6-2, s-6-2, s-12-2, s-18-2])
+
+        self.business_seats = []    
 
         self.business_neigh = dict()
-        for s in self.business_seats:
+        for s in self.seats:
             if s%6 == 3 or s%6 == 0:
                 self.business_neigh[s] = self.add_seats([s-1])
             if s%6 == 4 or s%6 == 1:
                 self.business_neigh[s] = self.add_seats([s+1])
             else :
                 self.business_neigh[s] = self.add_seats([s-1, s+1])
+
+        
         
         #Seat position for barycenter
         alley_size = 2
@@ -116,4 +125,4 @@ class Plane:
                 else :
                     self.a_u3[s] = [alley_size_u3 + s%6*column_size_u3, (s//6+1)*line_size_u3]
 
-    
+
