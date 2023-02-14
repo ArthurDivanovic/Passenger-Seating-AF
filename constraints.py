@@ -143,7 +143,7 @@ def default_solving(passengers, plane):
             for p_prime in range(group_passengers[0],group_passengers[1]+1):
                 print(f'y[{p},{p_prime}] = {y[p,p_prime].varValue}')
 
-def gurobi_solving(passengers, plane, time_limit=300):
+def gurobi_solving(passengers, plane, time_limit=300, alpha=0.1):
 
     # Model
     model = gurobipy.Model("Passenger Seating Problem")
@@ -256,9 +256,14 @@ def gurobi_solving(passengers, plane, time_limit=300):
         for s in plane.wchb_seats:
             neighs = plane.wchb_neigh2_for_wchr[s]
             model.addConstr(sum([x[s,p] for s in neighs for p in passengers.wchr]) <= len(neighs) * (1 - x[s,wchb]))
-
+    
+    time_cost = 0
+    for s in plane.seats:
+        for p in passengers.passengers:
+            time_cost += x[s,p]*passengers.corresponding_times[p] * (s//6+1)
+    time_cost *= alpha 
     ### Objective function ###
-    model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2, gurobipy.GRB.MINIMIZE)
+    model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 - time_cost, gurobipy.GRB.MINIMIZE)
     model.params.TimeLimit = time_limit
     model.optimize()
 

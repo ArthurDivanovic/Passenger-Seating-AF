@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 class Passengers:
 
     "Explain Passengers class"
 
-    def __init__(self, P, W, M, E, WCHR, WCHB, B, ECO, bounds, woman_mass=60, man_mass=75, child_mass=40, wchr_mass=90, wchb_mass=90):
+    def __init__(self, P, W, M, E, WCHR, WCHB, B, ECO, bounds, corresponding_times, woman_mass=60, man_mass=75, child_mass=40, wchr_mass=90, wchb_mass=90):
         self.passengers = P
         self.women = W
         self.men = M
@@ -16,6 +17,7 @@ class Passengers:
         self.economy = ECO
         self.bounds = bounds
         self.mass = dict(woman=woman_mass, man=man_mass, child=child_mass, wchr=wchr_mass, wchb=wchb_mass)
+        self.corresponding_times = corresponding_times
 
     def compute_groups_bounds(data):
         dict = {}
@@ -63,6 +65,7 @@ class Passengers:
         WCHB = []
         B = []
         ECO =[]
+        corresponding_times = dict()
         compteur = 0
         
         for i in range(len(data)):
@@ -74,6 +77,8 @@ class Passengers:
                     B.append(compteur)
                 else:
                     ECO.append(compteur)
+                corresponding_times[compteur] = (datetime.datetime.strptime(data["TransitTime"].iloc[i], '%H:%M:%S') - datetime.datetime(1900, 1, 1)) // datetime.timedelta(minutes=1)
+
             for m in range(int(data['Hommes'][i])):
                 compteur += 1
                 M.append(compteur)
@@ -81,6 +86,8 @@ class Passengers:
                     B.append(compteur)
                 else:
                     ECO.append(compteur)
+                corresponding_times[compteur] = (datetime.datetime.strptime(data["TransitTime"].iloc[i], '%H:%M:%S') - datetime.datetime(1900, 1, 1)) // datetime.timedelta(minutes=1)
+
             for e in range(int(data['Enfants'][i])):
                 compteur += 1
                 E.append(compteur)
@@ -88,6 +95,8 @@ class Passengers:
                     B.append(compteur)
                 else:
                     ECO.append(compteur)
+                corresponding_times[compteur] = (datetime.datetime.strptime(data["TransitTime"].iloc[i], '%H:%M:%S') - datetime.datetime(1900, 1, 1)) // datetime.timedelta(minutes=1)
+
             for wchr in range(int(data['WCHR'][i])):
                 compteur += 1
                 WCHR.append(compteur)
@@ -95,6 +104,8 @@ class Passengers:
                     B.append(compteur)
                 else:
                     ECO.append(compteur)
+                corresponding_times[compteur] = (datetime.datetime.strptime(data["TransitTime"].iloc[i], '%H:%M:%S') - datetime.datetime(1900, 1, 1)) // datetime.timedelta(minutes=1)
+
             for wchv in range(int(data['WCHB'][i])):
                 compteur += 1
                 WCHB.append(compteur)
@@ -102,11 +113,16 @@ class Passengers:
                     B.append(compteur)
                 else:
                     ECO.append(compteur)
+                corresponding_times[compteur] = (datetime.datetime.strptime(data["TransitTime"].iloc[i], '%H:%M:%S') - datetime.datetime(1900, 1, 1)) // datetime.timedelta(minutes=1)
+
+        t_max = max(corresponding_times.values())
+        for p in corresponding_times.keys():
+            corresponding_times[p] /= t_max
 
         P = [i for i in range(1, compteur+1)]
         bounds = Passengers.compute_groups_bounds(data)
 
-        return Passengers(P, W, M, E, WCHR, WCHB, B, bounds)
+        return Passengers(P, W, M, E, WCHR, WCHB, B, ECO, bounds, corresponding_times)
     
     def get_passenger_type(self, passenger_number):
         if passenger_number in self.men:
