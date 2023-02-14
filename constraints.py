@@ -121,12 +121,15 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0.1):
             model.addConstr(sum([x[s,p] for s in neighs for p in passengers.wchr]) <= len(neighs) * (1 - x[s,wchb]))
     
     time_cost = 0
-    for s in plane.seats:
-        for p in passengers.passengers:
-            time_cost += x[s,p]*passengers.corresponding_times[p] * (s//6+1)
+    
+    for p in passengers.passengers:
+        t_p = (1 - passengers.corresponding_times[p]) if passengers.corresponding_times[p]!= 0 else 0
+        for s in plane.seats:
+            time_cost += x[s,p]* t_p * (s//6+1)
     time_cost *= alpha 
+    
     ### Objective function ###
-    model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 - time_cost, gurobipy.GRB.MINIMIZE)
+    model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 + time_cost, gurobipy.GRB.MINIMIZE)
     model.params.TimeLimit = time_limit
     model.optimize()
 
