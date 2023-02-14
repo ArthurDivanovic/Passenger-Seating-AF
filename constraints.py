@@ -199,6 +199,24 @@ def gurobi_solving(passengers, plane, time_limit=300):
     #prob +=  y_barycenter <= ymax
     #prob +=  y_barycenter >= ymin
 
+    ## Business Passengers
+    business_passengers = len(passengers.business)
+    business_rows = (business_passengers // 4) if business_passengers%4==0 else (business_passengers // 4 + 1)
+    business_seats = range(1, business_rows * 6 + 1)
+    
+    for b in passengers.business:
+        # Business passengers must be attributed to a business seat 
+        model.addConstr(sum([x[s,b] for s in business_seats]) == 1)
+
+        # Business passengers don't have neighbors
+        for s in business_seats:
+            neighs = plane.business_neigh[s]
+            model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,b]))
+
+    # No economy passengers in the business seats
+    for eco in passengers.economy:
+        model.addConstr(sum([x[s,eco] for s in business_seats]) == 0)
+
     ## Children passengers
     emergency_seats = plane.emergency_seats
     for c in passengers.children:

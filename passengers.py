@@ -5,7 +5,7 @@ class Passengers:
 
     "Explain Passengers class"
 
-    def __init__(self, P, W, M, E, WCHR, WCHB, B, bounds, woman_mass=60, man_mass=75, child_mass=40, wchr_mass=90, wchb_mass=90):
+    def __init__(self, P, W, M, E, WCHR, WCHB, B, ECO, bounds, woman_mass=60, man_mass=75, child_mass=40, wchr_mass=90, wchb_mass=90):
         self.passengers = P
         self.women = W
         self.men = M
@@ -13,6 +13,7 @@ class Passengers:
         self.wchr = WCHR
         self.wchb = WCHB
         self.business = B
+        self.economy = ECO
         self.bounds = bounds
         self.mass = dict(woman=woman_mass, man=man_mass, child=child_mass, wchr=wchr_mass, wchb=wchb_mass)
 
@@ -61,6 +62,7 @@ class Passengers:
         WCHR = []
         WCHB = []
         B = []
+        ECO =[]
         compteur = 0
         
         for i in range(len(data)):
@@ -70,26 +72,36 @@ class Passengers:
                 W.append(compteur)
                 if data['Classe'][i] == "J":
                     B.append(compteur)
+                else:
+                    ECO.append(compteur)
             for m in range(int(data['Hommes'][i])):
                 compteur += 1
                 M.append(compteur)
                 if data['Classe'][i] == "J":
                     B.append(compteur)
+                else:
+                    ECO.append(compteur)
             for e in range(int(data['Enfants'][i])):
                 compteur += 1
                 E.append(compteur)
                 if data['Classe'][i] == "J":
                     B.append(compteur)
+                else:
+                    ECO.append(compteur)
             for wchr in range(int(data['WCHR'][i])):
                 compteur += 1
                 WCHR.append(compteur)
                 if data['Classe'][i] == "J":
                     B.append(compteur)
+                else:
+                    ECO.append(compteur)
             for wchv in range(int(data['WCHB'][i])):
                 compteur += 1
                 WCHB.append(compteur)
                 if data['Classe'][i] == "J":
                     B.append(compteur)
+                else:
+                    ECO.append(compteur)
 
         P = [i for i in range(1, compteur+1)]
         bounds = Passengers.compute_groups_bounds(data)
