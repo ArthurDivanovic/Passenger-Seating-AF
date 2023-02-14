@@ -154,21 +154,30 @@ def plot_results(passengers, plane, passenger_on_seats, barycenter):
     plt.scatter(X,Y)
 
     plt.scatter (barycenter[0], barycenter[1], c='green',)
+    plt.text(x-0.2,y+0.3,s=str(barycenter), fontdict=dict(color="k",size=10),)
 
     X1, Y1 = [], []
     for s in plane.center_zone :
         x,y = plane.seat_position[s]
         X1.append(x)
         Y1.append(y)
-    plt.scatter (X1,Y1, c='red')
+    plt.scatter(X1,Y1, c='red')
 
-    X2, Y2 = [], []
+    X21, Y21 = [], []
+    X22, Y22 = [], []
     for s in plane.emergency_seats:
         x,y = plane.seat_position[s]
-        X2.append(x)
-        Y2.append(y)
-    plt.scatter (X2,Y2, c='black')
+        if s%6 == 1:
+            X21.append(x)
+            Y21.append(y)
+        else :
+            X22.append(x)
+            Y22.append(y)
+    plt.scatter(X21,Y21, marker="<", c='black')
+    plt.scatter(X22,Y22, marker=">", c='black')
 
+    times = passengers.corresponding_times
+    t_max = max(times.values())
     for s,p in passenger_on_seats.items():
         group_id = passengers.get_group(p)
         x,y = plane.seat_position[s]
@@ -182,3 +191,5 @@ def plot_results(passengers, plane, passenger_on_seats, barycenter):
         if p in passengers.business :
            c = "blue"
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
+        if times[p] > 0 :
+            plt.text(x+0.2,y,s=f"{int(times[p]*t_max)}", fontdict=dict(color=c,size=10),)
