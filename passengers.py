@@ -122,7 +122,9 @@ class Passengers:
         P = [i for i in range(1, compteur+1)]
         bounds = Passengers.compute_groups_bounds(data)
 
+
         return Passengers(P, W, M, E, WCHR, WCHB, B, ECO, bounds, corresponding_times)
+        
     
     def get_passenger_type(self, passenger_number):
         if passenger_number in self.men:
