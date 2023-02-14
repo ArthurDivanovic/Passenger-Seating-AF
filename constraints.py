@@ -192,8 +192,8 @@ def gurobi_solving(passengers, plane, time_limit=300):
     xmax = plane.seat_position[plane.center_zone[1]][0]
     ymin = plane.seat_position[plane.center_zone[0]][1]
     ymax = plane.seat_position[plane.center_zone[2]][1]
-    x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
-    y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
+    #x_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][0]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
+    #y_barycenter = 1/nb_p * lpSum([x[s][p]*plane.seat_position[s][1]*passengers.mass[passengers.get_passenger_type(p)] for s in seats for p in passengers.passengers])
     #prob +=  x_barycenter <= xmax
     #prob +=  x_barycenter >= xmin
     #prob +=  y_barycenter <= ymax
@@ -201,16 +201,19 @@ def gurobi_solving(passengers, plane, time_limit=300):
 
     ## Business Passengers
     business_passengers = len(passengers.business)
+    print('bus pass :', passengers.business)
     business_rows = (business_passengers // 4) if business_passengers%4==0 else (business_passengers // 4 + 1)
-    business_seats = range(1, business_rows * 6 + 1)
-    
+    business_seats = [i for i in range(1, business_rows * 6 + 1)]
+    print('bus seats :', business_seats)
     for b in passengers.business:
         # Business passengers must be attributed to a business seat 
         model.addConstr(sum([x[s,b] for s in business_seats]) == 1)
-
+        
         # Business passengers don't have neighbors
         for s in business_seats:
             neighs = plane.business_neigh[s]
+            print('seat :', s, ' - neigh :', neighs)
+            
             model.addConstr(sum([x[s,p] for s in neighs for p in passengers.passengers]) <= len(neighs) * (1 - x[s,b]))
 
     # No economy passengers in the business seats
@@ -275,7 +278,7 @@ def gurobi_solving(passengers, plane, time_limit=300):
                 passenger_on_seats[seat] = passenger
 
 
-    return passenger_on_seats, [x_barycenter,y_barycenter]
+    return passenger_on_seats #, x_barycenter,y_barycenter]
 
 def plot_results(passengers, plane, passenger_on_seats):
     fig = plt.figure(figsize=(15,15))
@@ -303,6 +306,6 @@ def plot_results(passengers, plane, passenger_on_seats):
             c = "red"
         if p in passengers.children :
             c = "green"
-        #if p in passengers.business :
-        #    c = "yellow"
+        if p in passengers.business :
+           c = "yellow"
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
