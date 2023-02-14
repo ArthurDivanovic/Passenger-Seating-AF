@@ -35,7 +35,7 @@ class Plane:
             else :
                 self.child_neigh[s] = self.add_seats([s-1, s+1])
 
-        self.wchr_seats = self.alley_seats[1:]
+        self.wchr_seats = self.alley_seats[2:]
         self.wchr_neigh = dict()
         for s in self.wchr_seats:
             if s%6 == 3:
@@ -46,10 +46,10 @@ class Plane:
         self.wchb_seats = []
         self.wchb_neigh = dict()
 
-        for s in self.seats[:18]:
+        for s in self.seats[18:]:
             if s%6 == 2 or s%6 == 5 and s//6 > 2:
                 self.wchb_seats.append(s)
-                self.wchb_neigh[s] = self.add_seats([s-1, s+1, s-6-1, s-6+1, s-12-1, s-12+1, s-18-1, s-18+1])
+                self.wchb_neigh[s] = self.add_seats([s-1, s+1, s-6-1, s-6, s-6+1, s-12-1,s-12, s-12+1, s-18-1, s-18, s-18+1])
 
         self.business_seats = [k for k in range(1, 6*business_line_bound+1)]    
 
