@@ -39,9 +39,9 @@ class Plane:
         self.wchr_neigh = dict()
         for s in self.wchr_seats:
             if s%6 == 3:
-                self.wchr_neigh[s] = self.add_seats([s-6, s-6+1, s+1])
-            if s%6 == 4:
                 self.wchr_neigh[s] = self.add_seats([s-6, s-6-1, s-1])
+            if s%6 == 4:
+                self.wchr_neigh[s] = self.add_seats([s-6, s-6+1, s+1])
 
         self.wchb_seats = []
         self.wchb_neigh = dict()
