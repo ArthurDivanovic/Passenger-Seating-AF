@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import gurobipy
 
 
-def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0):
+def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callback=False):
 
     # Model
     model = gurobipy.Model("Passenger Seating Problem")
@@ -133,7 +133,12 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0):
     model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 + time_cost, gurobipy.GRB.MINIMIZE)
     model.params.TimeLimit = time_limit
     model.params.MIPGap = mip_gap
-    model.optimize()
+    # Set the callback function to be called every 1 second
+    if callback:
+        model.optimize(mycallback)
+    else:
+        model.optimize()
+    
 
     # Print the solution
     #print("x =", {k: v.x for k, v in x.items()})
@@ -148,6 +153,27 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0):
 
 
     return passenger_on_seats, (x_barycenter.getValue(),y_barycenter.getValue())
+
+
+def mycallback(model, where):
+    best_obj_val = float('inf')
+    last_update_time = 0
+    
+    if where == gurobipy.GRB.Callback.MIP:
+        # Update the best objective value seen so far
+        obj_val = model.cbGet(gurobipy.GRB.Callback.MIP_OBJBST)
+        if obj_val < best_obj_val:
+            best_obj_val = obj_val
+            last_update_time = model.cbGet(gurobipy.GRB.Callback.RUNTIME)
+    
+    elif where == gurobipy.GRB.Callback.MIPSOL:
+        elapsed_time = model.cbGet(gurobipy.GRB.Callback.RUNTIME)
+        obj_val = model.cbGet(gurobipy.GRB.Callback.MIPSOL_OBJ)
+
+        # Stop the optimization if the objective value has not improved in the last minute
+        if elapsed_time - last_update_time > 60:
+            model.terminate()
+
 
 def plot_results(passengers, plane, passenger_on_seats, barycenter):
     fig = plt.figure(figsize=(15,15))
