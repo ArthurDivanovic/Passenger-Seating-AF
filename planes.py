@@ -19,6 +19,8 @@ class Plane:
         
         self.nb_seat= nb_line * 6
         self.seats = [k for k in range(1, self.nb_seat+1)]
+
+        self.exit_lines = exit_lines
         self.emergency_seats = [6 * (line-1) + 1 for line in exit_lines] + [6 * line for line in exit_lines]
         
         self.alley_seats = []
