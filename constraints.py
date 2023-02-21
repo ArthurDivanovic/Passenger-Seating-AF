@@ -4,9 +4,10 @@ from pulp import *
 from planes import *
 from passengers import *
 import matplotlib.pyplot as plt
+import gurobipy
 
 
-def gurobi_solving(passengers, plane, time_limit=300, alpha=0.1):
+def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0):
 
     # Model
     model = gurobipy.Model("Passenger Seating Problem")
@@ -131,6 +132,7 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0.1):
     ### Objective function ###
     model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 + time_cost, gurobipy.GRB.MINIMIZE)
     model.params.TimeLimit = time_limit
+    model.params.MIPGap = mip_gap
     model.optimize()
 
     # Print the solution
