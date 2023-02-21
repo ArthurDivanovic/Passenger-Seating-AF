@@ -169,16 +169,15 @@ def mycallback(model, where):
     elif where == gurobipy.GRB.Callback.MIPSOL:
         elapsed_time = model.cbGet(gurobipy.GRB.Callback.RUNTIME)
         obj_val = model.cbGet(gurobipy.GRB.Callback.MIPSOL_OBJ)
-
         # Stop the optimization if the objective value has not improved in the last minute
         if elapsed_time - last_update_time > 60:
             model.terminate()
 
 
 def plot_results(passengers_path, results_path):
-    passengers = Passengers.compute_passengers_sets('data/test1.csv')
+    passengers = Passengers.compute_passengers_sets(passengers_path)
     
-    seating_df = pd.read_csv("passenger_seating_results.csv")
+    seating_df = pd.read_csv(results_path)
 
     exit_lines = seating_df.iloc[0]["group"].replace('[','').replace(']','').split(sep=",")
     exit_lines = [int(line) for line in exit_lines]
