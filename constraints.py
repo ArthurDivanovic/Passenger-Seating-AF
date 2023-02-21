@@ -162,10 +162,9 @@ def mycallback(model, where):
     if where == gurobipy.GRB.Callback.MIPSOL:
         #print('runtime: ',model.getAttr("RunTime"))
         last_update_time = time.time()
-        print('last time :', last_update_time)
 
     # Stop the optimization if the objective value has not improved in the last minute
-    if time.time() - last_update_time > 60:
+    if time.time() - last_update_time > 180:
         model.terminate()
 
 def plot_results(passengers_path, results_path):
@@ -216,7 +215,7 @@ def plot_results(passengers_path, results_path):
     t_max = max(times.values())
 
     passenger_on_seats = seating_df["seat_number"][1:].to_dict()
-    for s,p in passenger_on_seats.items():
+    for p,s in passenger_on_seats.items():
         group_id = passengers.get_group(p)
         x,y = plane.seat_position[s]
         c = "black"
@@ -231,6 +230,7 @@ def plot_results(passengers_path, results_path):
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
         if times[p] > 0 :
             plt.text(x+0.2,y,s=f"{round(times[p]*t_max, 2)}", fontdict=dict(color=c,size=10),)
+    plt.show()
 
 
 def plot_results_from_solver(passengers, plane, dico, barycenter):
