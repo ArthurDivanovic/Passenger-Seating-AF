@@ -169,9 +169,9 @@ def mycallback(model, where):
         model.terminate()
 
 def plot_results(passengers_path, results_path):
-    passengers = Passengers.compute_passengers_sets('data/test1.csv')
+    passengers = Passengers.compute_passengers_sets(passengers_path)
     
-    seating_df = pd.read_csv("passenger_seating_results.csv")
+    seating_df = pd.read_csv(results_path)
 
     exit_lines = seating_df.iloc[0]["group"].replace('[','').replace(']','').split(sep=",")
     exit_lines = [int(line) for line in exit_lines]
