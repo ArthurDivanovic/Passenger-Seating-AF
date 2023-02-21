@@ -6,8 +6,18 @@ from passengers import *
 from planes import *
 from constraints import *
 
+def compute_adapted_plane(passengers):
+    n = required_plane_size(passengers)
+    if n%6==0:
+        n_rows = n // 6
+    else:
+        n_rows = n//6 + 1
+    exit_lines = [n_rows // 2]
+    plane = Plane(n_rows, exit_lines=exit_lines)
+    return plane
 
 def required_plane_size(passengers):
+
     size = 0
     nb_passengers = len(passengers.passengers)
     size += nb_passengers
@@ -34,32 +44,34 @@ def required_plane_size(passengers):
 
     return size 
 
-def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, name="", path_for_results="test.csv", save=True, plot=True):
+
+def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0.7, callback=True, name="", path_for_results="test.csv", save=True, plot=True):
 
     ## Passengers info collecting
     passengers = Passengers.compute_passengers_sets(path)
+    plane = compute_adapted_plane(passengers)
     
     ## Plane simulation
 
     # Check if the passenger seating problem is feasible
-    required_size = required_plane_size(passengers)
-    try:
-        assert(required_size <= plane_size)
-    except:
-        raise AttributeError(f'The passengers dataset is invalid, there are too many people to fit in an A320')
+    # required_size = required_plane_size(passengers)
+    # try:
+    #     assert(required_size <= plane_size)
+    # except:
+    #     raise AttributeError(f'The passengers dataset is invalid, there are too many people to fit in an A320')
 
-    # Buil plane object
-    if plane_size % 6==0:
-        n_rows = plane_size// 6
-    else:
-        n_rows = plane_size//6 + 1
-    exit_lines = [n_rows // 2]
-    plane = Plane(n_rows, exit_lines=exit_lines)
+    # # Buil plane object
+    # if plane_size % 6==0:
+    #     n_rows = plane_size// 6
+    # else:
+    #     n_rows = plane_size//6 + 1
+    # exit_lines = [n_rows // 2]
+    # plane = Plane(n_rows, exit_lines=exit_lines)
 
     ## Solve problem
 
     # Solving with gurobi
-    x, barycenter = gurobi_solving(passengers,plane, time_limit=time_limit, alpha=alpha)
+    x, barycenter = gurobi_solving(passengers,plane, time_limit=time_limit, alpha=alpha, mip_gap=mip_gap, callback=callback)
 
     
     if save: 
