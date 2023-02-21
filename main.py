@@ -34,7 +34,7 @@ def required_plane_size(passengers):
 
     return size 
 
-def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, name=""):
+def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, name="", path_for_results="", save=True, plot=True):
 
     ## Passengers info collecting
     passengers = Passengers.compute_passengers_sets(path)
@@ -61,12 +61,26 @@ def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, 
     # Solving with gurobi
     x, barycenter = gurobi_solving(passengers,plane, time_limit=time_limit, alpha=alpha)
 
+    
+    if save: 
+        # Save results
+        seating_df = pd.DataFrame(x.items(), columns=['seat_number','passenger_id'])
+        seating_df.sort_values(by = 'passenger_id', inplace=True)
+        seating_df.set_index('passenger_id', inplace=True)
+        seating_df["group"] = [passengers.get_group(idx) for idx in seating_df.index]
+        seating_df["is_child"] = [1 if passengers.get_passenger_type(idx) == "child" else 0 for idx in seating_df.index]
+        seating_df["is_man"] = [1 if passengers.get_passenger_type(idx) == "man" else 0 for idx in seating_df.index]
+        seating_df["is_woman"] = [1 if passengers.get_passenger_type(idx) == "woman" else 0 for idx in seating_df.index]
+        seating_df["is_wchr"] = [1 if passengers.get_passenger_type(idx) == "wchr" else 0 for idx in seating_df.index]
+        seating_df["is_wchb"] = [1 if passengers.get_passenger_type(idx) == "wchb" else 0 for idx in seating_df.index]
+        seating_df.loc[0] = [plane.nb_seat//6, plane.exit_lines, barycenter, 0, 0, 0, 0]
+        seating_df.sort_index(inplace=True)
+        seating_df.to_csv("passenger_seating_results_name.csv")
+    
     # Ploting results 
-    plot_results(passengers,plane,x, barycenter)
+    if plot:
+       plot_results_from_solver(passengers, plane, x, barycenter)
 
-    # Save results
-    seating_df = pd.DataFrame(x.items(), columns=['Seat Number','Passenger Number'])
-    seating_df.to_csv('PassengerSeatingResult_' + name + '.csv')
 
 
 
