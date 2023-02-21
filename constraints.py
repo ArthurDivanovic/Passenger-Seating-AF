@@ -233,7 +233,7 @@ def plot_results(passengers_path, results_path):
             plt.text(x+0.2,y,s=f"{round(times[p]*t_max, 2)}", fontdict=dict(color=c,size=10),)
 
 
-def plot_results_from_solver(passengers, plane, x, barycenter):
+def plot_results_from_solver(passengers, plane, dico, barycenter):
     
     fig = plt.figure(figsize=(15,15))
     X = []
@@ -269,7 +269,7 @@ def plot_results_from_solver(passengers, plane, x, barycenter):
     times = passengers.corresponding_times
     t_max = max(times.values())
 
-    for s,p in x.items():
+    for s,p in dico.items():
         group_id = passengers.get_group(p)
         x,y = plane.seat_position[s]
         c = "black"
