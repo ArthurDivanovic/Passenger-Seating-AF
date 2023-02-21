@@ -123,7 +123,7 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0.1):
     time_cost = 0
     
     for p in passengers.passengers:
-        t_p = (1 - passengers.corresponding_times[p]) if passengers.corresponding_times[p]!= 0 else 0
+        t_p = (1 - passengers.corresponding_times[p]/2) if passengers.corresponding_times[p]!= 0 else 0
         for s in plane.seats:
             time_cost += x[s,p]* t_p * (s//6+1)
     time_cost *= alpha 
@@ -157,7 +157,7 @@ def plot_results(passengers, plane, passenger_on_seats, barycenter):
     plt.scatter(X,Y)
 
     plt.scatter (barycenter[0], barycenter[1], c='green',)
-    plt.text(x-0.2,y+0.3,s=str(barycenter), fontdict=dict(color="k",size=10),)
+    plt.text(barycenter[0]-0.2,barycenter[1]+0.3,s=str(round(barycenter[0],2)) +","+str(round(barycenter[1],2)), fontdict=dict(color="k",size=10))
 
     X1, Y1 = [], []
     for s in plane.center_zone :
@@ -195,4 +195,4 @@ def plot_results(passengers, plane, passenger_on_seats, barycenter):
            c = "blue"
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
         if times[p] > 0 :
-            plt.text(x+0.2,y,s=f"{int(times[p]*t_max)}", fontdict=dict(color=c,size=10),)
+            plt.text(x+0.2,y,s=f"{round(times[p]*t_max, 2)}", fontdict=dict(color=c,size=10),)
