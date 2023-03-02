@@ -25,10 +25,14 @@ def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, c
         last_element = passengers.bounds[group][1]
         Y[group] = {(i, j): model.addVar(name="y"+str(group)+"[i,j]") for i in range(first_element, last_element+1) for j in range(first_element, last_element+1)}
     # Gap variables for constraint: "Children should have an adult next to them"
-    eps = dict()
+    eps1 = dict()
     for c in passengers.children:
-        eps[c] = model.addVar(lb=0, vtype=gurobipy.GRB.CONTINUOUS, name="eps[c]")
-    print('epsilon :', eps)
+        eps1[c] = model.addVar(lb=0, vtype=gurobipy.GRB.CONTINUOUS, name="eps1[c]")
+    # Gap variables for constraint: "Children are not placed near emergency exits"
+    eps2 = dict()
+    for c in passengers.children:
+        eps2[c] = model.addVar(lb=0, vtype=gurobipy.GRB.CONTINUOUS, name="eps2[c]")
+ 
     
 
     ### CONSTRAINTS ###
@@ -94,13 +98,13 @@ def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, c
     for c in passengers.children:
 
         # No children next to the emergency exits
-        model.addConstr(sum([x[s,c] for s in emergency_seats]) == 0)
+        model.addConstr(sum([x[s,c] for s in emergency_seats]) == eps2[c])
 
         # Children should have an adult next to them
         adults = passengers.men + passengers.women
         for s in plane.seats:
             neighs = plane.child_neigh[s]
-            model.addConstr(sum([x[s,p] for s in neighs for p in adults]) >= x[s,c] - eps[c])
+            model.addConstr(sum([x[s,p] for s in neighs for p in adults]) >= x[s,c] - eps1[c])
 
     ## WCHR passengers
     wchr_seats = plane.wchr_seats
@@ -138,7 +142,7 @@ def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, c
     time_cost *= alpha 
     
     ### Objective function ###
-    model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 + time_cost + 1000 * sum(eps.values()), gurobipy.GRB.MINIMIZE)
+    model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 + time_cost + 1000 * sum(eps1.values()) + 100000 * sum(eps2.values()), gurobipy.GRB.MINIMIZE)
     model.params.TimeLimit = time_limit
     model.params.MIPGap = mip_gap
     # Set the callback function to be called every 1 second
