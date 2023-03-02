@@ -6,8 +6,11 @@ from passengers import *
 import matplotlib.pyplot as plt
 import gurobipy
 import time 
+from evaluation import *
 
 MAX_NON_UPDATE_TIME = 180
+EPSILON_ERROR_OBJECTIVE = 0.1
+best_objective = 0
 
 def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callback=False):
 
@@ -42,7 +45,7 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callba
     for group in Y.keys():
         group_passengers = passengers.bounds[group]
         y = Y[group]
-        if group_passengers[1] - group_passengers[0] <= 3:
+        if group_passengers[1] - group_passengers[0] < 3:
             a = a_l3
         else:
             a = a_u3
@@ -135,6 +138,10 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callba
     model.setObjective(sum([sum(Y[group].values()) for group in Y.keys()]) / 2 + time_cost, gurobipy.GRB.MINIMIZE)
     model.params.TimeLimit = time_limit
     model.params.MIPGap = mip_gap
+
+    global best_objective
+    best_objective = best_metric(passengers, alpha=alpha)
+
     # Set the callback function to be called every 1 second
     if callback:
         model.optimize(mycallback)
@@ -158,11 +165,17 @@ def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callba
     return passenger_on_seats, (x_barycenter.getValue(),y_barycenter.getValue())
 
 last_update_time = time.time()
+
+
 def mycallback(model, where):
     global last_update_time
     if where == gurobipy.GRB.Callback.MIPSOL:
         #print('runtime: ',model.getAttr("RunTime"))
         last_update_time = time.time()
+        obj_value = model.cbGet(gurobipy.GRB.Callback.MIPSOL_OBJ)
+        print(abs(obj_value - best_objective)/obj_value)
+        if abs(obj_value - best_objective)/obj_value <= EPSILON_ERROR_OBJECTIVE:
+            model.terminate()
 
     # Stop the optimization if the objective value has not improved in the last minute
     if time.time() - last_update_time > MAX_NON_UPDATE_TIME:

@@ -1,12 +1,26 @@
+def get_column(seat_nb):
+        return seat_nb%6
+    
+def get_line(seat_nb):
+        return (seat_nb-1)//6+1
+
+#METRIC FEATURES
+
+#GROUP UNDER 3 PASSENGERS
+ALLEY_SIZE_L3 = 2
+LINE_SIZE_L3 = 20
+COLUMN_SIZE_L3 = 1
+
+#GROUP OVER 3 PASSENGERS
+ALLEY_SIZE_U3 = 0
+LINE_SIZE_U3 = 5
+COLUMN_SIZE_U3 = 1
+
+
+
 class Plane:
 
     '[Explain Plane class]' 
-    
-    def get_column(self, seat_nb):
-        return seat_nb%6
-    
-    def get_line(self, seat_nb):
-        return seat_nb//6
 
     def add_seats(self, new_seats):
         new_seats2 = []
@@ -14,6 +28,8 @@ class Plane:
             if s  <= self.nb_seat and s >= 0 :
                 new_seats2.append(s)
         return new_seats2
+    
+
     
     def __init__(self, nb_line=100, exit_lines=[], business_line_bound=0):
         
@@ -74,7 +90,7 @@ class Plane:
         
         
         #Seat position for barycenter
-        alley_size = 2
+        alley_size = 1
         line_size = 3
         column_size = 1
         self.seat_position = dict()
@@ -97,9 +113,9 @@ class Plane:
         
 
         #Position for group of less (or equal) than 3 people
-        alley_size_l3 = 2
-        line_size_l3 = 20
-        column_size_l3 = 1
+        alley_size_l3 = ALLEY_SIZE_L3
+        line_size_l3 = LINE_SIZE_L3
+        column_size_l3 = COLUMN_SIZE_L3
 
         self.a_l3 = dict()
         for s in self.seats:
@@ -113,9 +129,9 @@ class Plane:
 
 
         #Position for group of more than 3 people
-        alley_size_u3 = 2
-        line_size_u3 = 20
-        column_size_u3 = 1
+        alley_size_u3 = ALLEY_SIZE_U3
+        line_size_u3 = LINE_SIZE_U3
+        column_size_u3 = COLUMN_SIZE_U3
 
         self.a_u3 = dict()
         for s in self.seats:
@@ -126,5 +142,40 @@ class Plane:
                     self.a_u3[s] = [alley_size_u3 + 6*column_size_u3, s//6*line_size_u3]
                 else :
                     self.a_u3[s] = [alley_size_u3 + s%6*column_size_u3, (s//6+1)*line_size_u3]
+
+
+
+
+        
+        #Original metric for group of less (or equal) than 3 people
+        original_alley_size_l3 = 1
+        original_line_size_l3 = 2
+        original_column_size_l3 = 1
+
+        self.original_a_l3 = dict()
+        for s in self.seats:
+            if s%6 <= 3 and s%6 >= 1:
+                self.original_a_l3[s] = [s%6*original_column_size_l3, (s//6+1)*original_line_size_l3]
+            else:
+                if s%6 == 0:
+                    self.original_a_l3[s] = [original_alley_size_l3 + 6*original_column_size_l3, s//6*original_line_size_l3]
+                else :
+                    self.original_a_l3[s] = [original_alley_size_l3 + s%6*original_column_size_l3, (s//6+1)*original_line_size_l3]
+
+
+        #Original metric for group of more than 3 people
+        original_alley_size_u3 = 0
+        original_line_size_u3 = 0.5
+        original_column_size_u3 = 1
+
+        self.original_a_u3 = dict()
+        for s in self.seats:
+            if s%6 <= 3 and s%6 >= 1:
+                self.original_a_u3[s] = [s%6*original_column_size_u3, (s//6+1)*original_line_size_u3]
+            else:
+                if s%6 == 0:
+                    self.original_a_u3[s] = [original_alley_size_u3 + 6*original_column_size_u3, s//6*original_line_size_u3]
+                else :
+                    self.original_a_u3[s] = [original_alley_size_u3 + s%6*original_column_size_u3, (s//6+1)*original_line_size_u3]
 
 

@@ -7,6 +7,7 @@ from planes import *
 from constraints import *
 from soft_constraints import *
 
+
 def compute_adapted_plane(passengers):
     n = required_plane_size(passengers)
     if n%6==0:
@@ -96,6 +97,8 @@ def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, 
     if plot:
        plot_results_from_solver(passengers, plane, x, barycenter)
 
+    return passengers, plane, x, barycenter
+
 
 def computer_soft_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0.7, callback=True, name="", path_for_results="", save=True, plot=True):
 
@@ -146,6 +149,8 @@ def computer_soft_passenger_seating(path, plane_size=152, time_limit=300, alpha=
     # Ploting results 
     if plot:
        plot_results_from_solver(passengers, plane, x, barycenter)
+
+    return passengers, plane, x, barycenter
 
 
 
