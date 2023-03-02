@@ -117,7 +117,8 @@ class Passengers:
 
         t_max = max(corresponding_times.values())
         for p in corresponding_times.keys():
-            corresponding_times[p] /= t_max
+            if t_max != 0:
+                corresponding_times[p] /= t_max 
 
         P = [i for i in range(1, compteur+1)]
         bounds = Passengers.compute_groups_bounds(data)
