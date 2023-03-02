@@ -44,13 +44,14 @@ def required_plane_size(passengers):
 
     return size 
 
-def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0.7, callback=True, name="", path_for_results="", save=True, plot=True):
+def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0.7, callback=True, name="results", path_for_results="", save=True, plot=True):
 
     ## Passengers info collecting
     passengers = Passengers.compute_passengers_sets(path)
-    print('required :', required_plane_size(passengers))
+    # print('nb_passengers :', len(passengers.passengers))
+    # print('required :', required_plane_size(passengers))
     plane = compute_adapted_plane(passengers)
-    print('actual :', len(plane.seats))
+    # print('actual :', len(plane.seats))
     
     ## Plane simulation
 
@@ -88,7 +89,7 @@ def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, 
         seating_df["is_wchb"] = [1 if passengers.get_passenger_type(idx) == "wchb" else 0 for idx in seating_df.index]
         seating_df.loc[0] = [plane.nb_seat//6, plane.exit_lines, barycenter, 0, 0, 0, 0]
         seating_df.sort_index(inplace=True)
-        seating_df.to_csv("passenger_seating_results_name.csv")
+        seating_df.to_csv(f"{path_for_results}{name}.csv")
     
     # Ploting results 
     if plot:
