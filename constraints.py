@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import gurobipy
 import time 
 
+MAX_NON_UPDATE_TIME = 180
 
 def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callback=False):
 
@@ -164,7 +165,7 @@ def mycallback(model, where):
         last_update_time = time.time()
 
     # Stop the optimization if the objective value has not improved in the last minute
-    if time.time() - last_update_time > 180:
+    if time.time() - last_update_time > MAX_NON_UPDATE_TIME:
         model.terminate()
 
 def plot_results(passengers_path, results_path):
