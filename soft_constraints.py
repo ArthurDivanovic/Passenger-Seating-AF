@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import gurobipy
 import time 
 
+MAX_NON_UPDATE_TIME = 180
 
 def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callback=False):
 
@@ -52,7 +53,7 @@ def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, c
     for group in Y.keys():
         group_passengers = passengers.bounds[group]
         y = Y[group]
-        if group_passengers[1] - group_passengers[0] <= 3:
+        if group_passengers[1] - group_passengers[0] < 3:
             a = a_l3
         else:
             a = a_u3
