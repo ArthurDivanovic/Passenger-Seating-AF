@@ -7,6 +7,8 @@ from planes import *
 from constraints import *
 from soft_constraints import *
 
+from final_heuristic import *
+
 
 def compute_adapted_plane(passengers):
     n = required_plane_size(passengers)
@@ -77,7 +79,17 @@ def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, 
     # Solving with gurobi
     x, barycenter = gurobi_solving(passengers,plane, time_limit=time_limit, alpha=alpha, mip_gap=mip_gap, callback=callback)
 
-    
+    # Ploting results 
+    if plot:
+       plot_results_from_solver(passengers, plane, x, barycenter, title=name+" after gurobi solving")
+
+    #Heuristics   
+    x, barycenter = final_heuristic_v1(plane, passengers, x, barycenter, alpha)
+
+    # Ploting results 
+    if plot:
+       plot_results_from_solver(passengers, plane, x, barycenter,  title=name+" after heuristics solving")
+
     if save: 
         # Save results
         seating_df = pd.DataFrame(x.items(), columns=['seat_number','passenger_id'])
@@ -92,10 +104,6 @@ def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, 
         seating_df.loc[0] = [plane.nb_seat//6, plane.exit_lines, barycenter, 0, 0, 0, 0]
         seating_df.sort_index(inplace=True)
         seating_df.to_csv(f"{path_for_results}{name}.csv")
-    
-    # Ploting results 
-    if plot:
-       plot_results_from_solver(passengers, plane, x, barycenter)
 
     return passengers, plane, x, barycenter
 
@@ -130,7 +138,16 @@ def computer_soft_passenger_seating(path, plane_size=152, time_limit=300, alpha=
     # Solving with gurobi
     x, barycenter = soft_gurobi_solving(passengers,plane, time_limit=time_limit, alpha=alpha, mip_gap=mip_gap, callback=callback)
 
-    
+    # Ploting results 
+    if plot:
+       plot_results_from_solver(passengers, plane, x, barycenter, title=name+" after gurobi solving")
+
+    #Heuristics   
+    x, barycenter = final_heuristic_soft(plane, passengers, x, barycenter, alpha)
+
+    if plot:
+       plot_results_from_solver(passengers, plane, x, barycenter, title=name+" after heuristics solving")
+
     if save: 
         # Save results
         seating_df = pd.DataFrame(x.items(), columns=['seat_number','passenger_id'])
@@ -144,11 +161,9 @@ def computer_soft_passenger_seating(path, plane_size=152, time_limit=300, alpha=
         seating_df["is_wchb"] = [1 if passengers.get_passenger_type(idx) == "wchb" else 0 for idx in seating_df.index]
         seating_df.loc[0] = [plane.nb_seat//6, plane.exit_lines, barycenter, 0, 0, 0, 0]
         seating_df.sort_index(inplace=True)
-        seating_df.to_csv("passenger_seating_results_name.csv")
+        seating_df.to_csv(f"{path_for_results}{name}.csv")
     
-    # Ploting results 
-    if plot:
-       plot_results_from_solver(passengers, plane, x, barycenter)
+    
 
     return passengers, plane, x, barycenter
 
