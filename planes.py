@@ -48,7 +48,7 @@ class Plane:
         for s in self.seats:
             if s%6 == 3 or s%6 == 0:
                 self.child_neigh[s] = self.add_seats([s-1])
-            if s%6 == 4 or s%6 == 1:
+            elif s%6 == 4 or s%6 == 1:
                 self.child_neigh[s] = self.add_seats([s+1])
             else :
                 self.child_neigh[s] = self.add_seats([s-1, s+1])

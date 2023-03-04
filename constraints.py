@@ -9,7 +9,7 @@ import time
 from evaluation import *
 
 MAX_NON_UPDATE_TIME = 180
-EPSILON_ERROR_OBJECTIVE = 0.1
+EPSILON_ERROR_OBJECTIVE = 0
 best_objective = 0
 
 def gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callback=False):
@@ -173,7 +173,7 @@ def mycallback(model, where):
         #print('runtime: ',model.getAttr("RunTime"))
         last_update_time = time.time()
         obj_value = model.cbGet(gurobipy.GRB.Callback.MIPSOL_OBJ)
-        print(abs(obj_value - best_objective)/obj_value)
+        #print(abs(obj_value - best_objective)/obj_value)
         if abs(obj_value - best_objective)/obj_value <= EPSILON_ERROR_OBJECTIVE:
             model.terminate()
 
@@ -181,9 +181,8 @@ def mycallback(model, where):
     if time.time() - last_update_time > MAX_NON_UPDATE_TIME:
         model.terminate()
 
-def plot_results(passengers_path, results_path):
-    passengers = Passengers.compute_passengers_sets(passengers_path)
-    
+
+def get_plane_from_results(results_path):
     seating_df = pd.read_csv(results_path)
 
     exit_lines = seating_df.iloc[0]["group"].replace('[','').replace(']','').split(sep=",")
@@ -191,8 +190,26 @@ def plot_results(passengers_path, results_path):
     nb_rows = seating_df.iloc[0]["seat_number"]
     plane = Plane(nb_rows, exit_lines)
 
-    barycenter = seating_df.iloc[0]["is_child"].replace('(','').replace(')','').split(sep=",")
+    return plane
+
+def get_passengers_on_seats_from_results(results_path):
+    seating_df = pd.read_csv(results_path)
+
+    barycenter = seating_df.iloc[0]["is_child"].replace('[','').replace(']','').split(sep=",")
     barycenter = [float(coord) for coord in barycenter]
+
+    seats_on_passengers = seating_df["seat_number"][1:].to_dict()
+    passengers_on_seats = {s:p for p,s in seats_on_passengers.items()}
+
+    return passengers_on_seats, barycenter
+
+
+def plot_results(passengers_path, results_path, title=""):
+    passengers = Passengers.compute_passengers_sets(passengers_path)
+    
+    plane = get_plane_from_results(results_path)
+
+    passenger_on_seats, barycenter = get_passengers_on_seats_from_results(results_path)
     
     fig = plt.figure(figsize=(15,15))
     X = []
@@ -228,8 +245,7 @@ def plot_results(passengers_path, results_path):
     times = passengers.corresponding_times
     t_max = max(times.values())
 
-    passenger_on_seats = seating_df["seat_number"][1:].to_dict()
-    for p,s in passenger_on_seats.items():
+    for s,p in passenger_on_seats.items():
         group_id = passengers.get_group(p)
         x,y = plane.seat_position[s]
         c = "black"
@@ -244,10 +260,11 @@ def plot_results(passengers_path, results_path):
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
         if times[p] > 0 :
             plt.text(x+0.2,y,s=f"{round(times[p]*t_max, 2)}", fontdict=dict(color=c,size=10),)
+    plt.title(title)
     plt.show()
 
 
-def plot_results_from_solver(passengers, plane, dico, barycenter):
+def plot_results_from_solver(passengers, plane, dico, barycenter, title=""):
     
     fig = plt.figure(figsize=(15,15))
     X = []
@@ -298,3 +315,6 @@ def plot_results_from_solver(passengers, plane, dico, barycenter):
         plt.text(x-0.2,y+0.3,s=group_id, fontdict=dict(color=c,size=20),)
         if times[p] > 0 :
             plt.text(x+0.2,y,s=f"{round(times[p]*t_max, 2)}", fontdict=dict(color=c,size=10),)
+    
+    plt.title(title)
+    plt.show()
