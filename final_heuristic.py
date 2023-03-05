@@ -106,7 +106,7 @@ def final_heuristic_v1(plane, passengers, passengers_on_seats, barycenter, alpha
                 if new_score > actual_score:
                     print("group ", group , " | p,s : ", p,s, " | p_prime, s_prime : ", p_prime, s_prime, " | new_score : ", new_score)
 
-                    new_barycenter = check_soft_constraints(plane, passengers, new_passengers_on_seats)
+                    new_barycenter = check_constraints(plane, passengers, new_passengers_on_seats)
                     if  new_barycenter != None :
                         barycenter = new_barycenter
                         passengers_on_seats = new_passengers_on_seats

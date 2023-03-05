@@ -6,8 +6,13 @@ from passengers import *
 import matplotlib.pyplot as plt
 import gurobipy
 import time 
+from evaluation import *
+
 
 MAX_NON_UPDATE_TIME = 180
+EPSILON_ERROR_OBJECTIVE = 0
+best_objective = 0
+last_update_time = 0
 
 def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, callback=False):
 
@@ -147,6 +152,12 @@ def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, c
     model.params.TimeLimit = time_limit
     model.params.MIPGap = mip_gap
     # Set the callback function to be called every 1 second
+
+    global best_objective
+    best_objective = best_metric(passengers, alpha=alpha)
+
+    global last_update_time
+    last_update_time = time.time()
     if callback:
         model.optimize(mycallback)
 
@@ -168,7 +179,8 @@ def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, c
 
     return passenger_on_seats, (x_barycenter.getValue(),y_barycenter.getValue())
 
-last_update_time = time.time()
+
+
 def mycallback(model, where):
     global last_update_time
     if where == gurobipy.GRB.Callback.MIPSOL:

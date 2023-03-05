@@ -48,7 +48,7 @@ def required_plane_size(passengers):
 
     return size 
 
-def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0.7, callback=True, name="results", path_for_results="", save=True, plot=True):
+def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0, callback=True, name="results", path_for_results="", save=True, plot=True):
 
     ## Passengers info collecting
     passengers = Passengers.compute_passengers_sets(path)
@@ -108,7 +108,7 @@ def computer_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, 
     return passengers, plane, x, barycenter
 
 
-def computer_soft_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0.7, callback=True, name="", path_for_results="", save=True, plot=True):
+def computer_soft_passenger_seating(path, plane_size=152, time_limit=300, alpha=0.1, mip_gap=0, callback=True, name="", path_for_results="", save=True, plot=True):
 
     ## Passengers info collecting
     passengers = Passengers.compute_passengers_sets(path)
