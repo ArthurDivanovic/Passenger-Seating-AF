@@ -155,6 +155,39 @@ def original_best_group_score(group_size):
         not_complete_line = group_size%6
         return group_size//6*score_line + original_best_group_score(not_complete_line) + not_complete_line*1
 
+def evaluate_group_metric(plane, group_on_seats):
+    if len(group_on_seats) <= 3 :
+        a = plane.a_l3
+    else:
+        a = plane.a_u3
+    
+    metric = 0
+    for s in group_on_seats.keys():
+        for s_prime in group_on_seats.keys():
+            metric += (abs(a[s][0] - a[s_prime][0]) + abs(a[s][1] - a[s_prime][1]))/2
+
+    return metric
+
+
+def evaluate_metric(plane, passengers, passengers_on_seats, alpha):
+    metric = 0
+    
+    for group in passengers.bounds.keys():
+        first_element, last_element = passengers.bounds[group]
+
+        if first_element not in passengers.business:
+            group_on_seats = {key: value for key, value in passengers_on_seats.items() if value >= first_element and value <= last_element}
+            metric += evaluate_group_metric(plane, group_on_seats)
+
+        time_cost = 0
+    
+    for s,p in passengers_on_seats.items() :
+        t_p = (1 - passengers.corresponding_times[p]/2) if passengers.corresponding_times[p]!= 0 else 0
+        time_cost += t_p * (s//6+1)
+    time_cost *= alpha 
+
+    metric += time_cost
+    return metric
 
 
 def evaluate_group_original_metric(plane, group_on_seats):
