@@ -1,0 +1,15 @@
+.DS_Store
+
+results5/
+results10/
+results30/
+results60/
+results120/
+#results180/
+#results300/
+
+*.png
+
+__pycache__/
+
+test_notebook.ipynb

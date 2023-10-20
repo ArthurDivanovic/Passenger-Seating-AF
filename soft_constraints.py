@@ -144,7 +144,7 @@ def soft_gurobi_solving(passengers, plane, time_limit=300, alpha=0, mip_gap=0, c
     for p in passengers.passengers:
         t_p = (1 - passengers.corresponding_times[p]/2) if passengers.corresponding_times[p]!= 0 else 0
         for s in plane.seats:
-            time_cost += x[s,p]* t_p * (s//6+1)
+            time_cost += x[s,p]* t_p * ((s-1)//6+1)
     time_cost *= alpha 
     
     ### Objective function ###
