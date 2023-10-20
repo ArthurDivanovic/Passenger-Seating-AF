@@ -4,4 +4,5 @@ Passenger-Seating-AF est une solution algorithmique du placement des passagers d
 
 Un notebook est fourni afin de tester les différentes fonctionnalités de l'implémentation sur des instances types fournies par AirFrance que l'on retrouve dans le dossier data.
 
+Special Requirement: Gurobi optimizer license and gurobipy
 
