@@ -140,7 +140,7 @@ def best_original_metric(passengers, alpha):
         s = line*6 + 1
    
     for p, t in corresponding_times_economy:
-        time_cost += (1 - t/2) * (s//6+1)
+        time_cost += (1 - t/2) * ((s-1)//6+1)
         s += 1
 
     return metric - alpha*time_cost
@@ -183,7 +183,7 @@ def evaluate_metric(plane, passengers, passengers_on_seats, alpha):
     
     for s,p in passengers_on_seats.items() :
         t_p = (1 - passengers.corresponding_times[p]/2) if passengers.corresponding_times[p]!= 0 else 0
-        time_cost += t_p * (s//6+1)
+        time_cost += t_p * ((s-1)//6+1)
     time_cost *= alpha 
 
     metric += time_cost
@@ -221,7 +221,7 @@ def evaluate_original_metric(plane, passengers, passengers_on_seats, alpha):
     
     for s,p in passengers_on_seats.items() :
         t_p = (1 - passengers.corresponding_times[p]/2) if passengers.corresponding_times[p]!= 0 else 0
-        time_cost += t_p * (s//6+1)
+        time_cost += t_p * ((s-1)//6+1)
     time_cost *= alpha 
 
     original_metric -= time_cost
